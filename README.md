@@ -45,9 +45,9 @@ opencli uindex --help
 | `top` | 查看 Top 100 |
 | `trending` | 查看首页热门（电影/剧集） |
 
-## 搜索种子
+---
 
-### search 语法
+## 搜索种子
 
 ```bash
 opencli uindex search <关键词> [选项]
@@ -61,6 +61,9 @@ opencli uindex search <关键词> [选项]
 | `--category` | int | `0` | 分类 ID |
 | `--limit` | int | `20` | 返回条数 |
 | `--page` | int | `1` | 翻页 |
+| `--quality` | string | — | 分辨率过滤：`2160p` `1080p` `720p` `4k`，或自定义正则 |
+| `--min-seeders` | int | — | 最少做种数过滤 |
+| `--sort` | string | — | 排序：`seeders` `size` `name` `uploaded`（加 `-` 前缀升序） |
 
 ### 分类 ID
 
@@ -79,18 +82,26 @@ opencli uindex search <关键词> [选项]
 ### 示例
 
 ```bash
-# 搜索全站
+# 基本搜索
 opencli uindex search "the boys"
 
-# 只搜电影
-opencli uindex search "hoppers" --category 1
+# 只搜 2160p/4K 分辨率的电影
+opencli uindex search "dune" --category 1 --quality 2160p
 
-# 搜动漫，取前10条
-opencli uindex search "one piece" --category 7 --limit 10
+# 搜 1080p 以上且做种数 > 500 的剧集
+opencli uindex search "the boys" --category 2 --quality "(2160p|1080p)" --min-seeders 500
 
-# 翻到第2页
-opencli uindex search "test" --page 2 --limit 5
+# 按做种数排序（最多的排前面）
+opencli uindex search "oppenheimer" --sort seeders --limit 10
+
+# 按名称升序排序
+opencli uindex search "test" --sort -name
+
+# 翻页 + 过滤组合
+opencli uindex search "one piece" --category 7 --page 2 --limit 5
 ```
+
+---
 
 ## 查看 Top 100
 
@@ -100,10 +111,14 @@ opencli uindex top [选项]
 
 ### 参数
 
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| `--category` | `0` | 分类 ID（同上） |
-| `--duration` | `7d` | 时间范围 |
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `--category` | int | `0` | 分类 ID |
+| `--duration` | string | `7d` | 时间范围 |
+| `--limit` | int | `20` | 返回条数（最大 100） |
+| `--quality` | string | — | 分辨率过滤 |
+| `--min-seeders` | int | — | 最少做种数 |
+| `--sort` | string | — | 排序方式 |
 
 ### duration 可选值
 
@@ -123,12 +138,17 @@ opencli uindex top [选项]
 # 全站 Top 100（默认7天）
 opencli uindex top
 
-# 电影类 Top 100（24h最热）
-opencli uindex top --category 1 --duration 24h
+# 24h 最热电影，只看 2160p
+opencli uindex top --category 1 --duration 24h --quality 2160p
 
-# 游戏类 Top 100（全时）
-opencli uindex top --category 3 --duration all
+# 游戏类全时排行，按做种数降序
+opencli uindex top --category 3 --duration all --sort seeders --limit 10
+
+# 剧集类本周最热，只看做种 > 1000 的
+opencli uindex top --category 2 --duration 7d --min-seeders 1000
 ```
+
+---
 
 ## 查看首页热门
 
@@ -138,10 +158,13 @@ opencli uindex trending [选项]
 
 ### 参数
 
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| `--section` | `movies` | `movies` 或 `tv` |
-| `--limit` | `15` | 返回条数 |
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `--section` | string | `movies` | `movies` 或 `tv` |
+| `--limit` | int | `15` | 返回条数 |
+| `--quality` | string | — | 分辨率过滤 |
+| `--min-seeders` | int | — | 最少做种数 |
+| `--sort` | string | — | 排序方式 |
 
 ### 示例
 
@@ -149,9 +172,14 @@ opencli uindex trending [选项]
 # 热门电影（默认）
 opencli uindex trending
 
-# 热门剧集，取前10
-opencli uindex trending --section tv --limit 10
+# 热门剧集，只保留 2160p
+opencli uindex trending --section tv --quality 2160p
+
+# 热门电影按做种数排序，取前10
+opencli uindex trending --section movies --sort seeders --limit 10
 ```
+
+---
 
 ## 输出格式说明
 
@@ -161,10 +189,12 @@ opencli uindex trending --section tv --limit 10
 |------|------|
 | `name` | 资源名称 |
 | `size` | 文件大小 |
-| `seeders` / `S` | 做种数 |
-| `leechers` / `L` | 下载数 |
+| `seeders` | 做种数 |
+| `leechers` | 下载数 |
 | `category` | 分类（search/top） |
 | `uploaded` | 上传时间（search/top） |
+
+---
 
 ## 实用技巧
 
@@ -178,9 +208,26 @@ opencli uindex search "dune" | grep -A 5 "seeders: [1-9][0-9][0-9][0-9]"
 opencli uindex top --category 1 | head -20
 ```
 
-### 获取磁力链接
+### 搭配字幕搜索
 
-搜索结果中不直接包含磁力链接。如需下载，在浏览器中打开 UIndex 网站搜索后点击 "Download Magnet" 获取。
+配合字幕搜索 CLI，可以实现资源 + 字幕一键查找：
+
+```bash
+# 搜到资源后，提取名称传给字幕搜索
+opencli uindex search "dune" --quality 2160p --limit 5 | \
+  grep "^  name: " | cut -d: -f2- | xargs -I{} opencli subtitle search "{}"
+```
+
+---
+
+## 新功能（v1.1.0）
+
+- **`--quality`** — 按分辨率过滤（2160p / 1080p / 720p / 4k 或自定义正则）
+- **`--min-seeders`** — 只显示做种数达到某个值的资源
+- **`--sort`** — 按种子数 / 大小 / 名称 / 上传时间排序
+- **`--limit`** — top 命令也支持 limit 了
+
+---
 
 ## 注意事项
 
