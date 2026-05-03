@@ -1,0 +1,6 @@
+{
+  "name": "uindex",
+  "version": "1.0.0",
+  "opencli": ">=1.7.0",
+  "description": "UIndex.org torrent search — search, top 100, trending"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "opencli-plugin-uindex",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "description": "UIndex.org torrent search CLI — search, top 100, trending",
+  "peerDependencies": {
+    "@jackwener/opencli": ">=1.7.0"
+  },
+  "keywords": ["opencli", "plugin", "uindex", "torrent", "search"],
+  "license": "MIT"
+}
