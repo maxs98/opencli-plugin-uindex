@@ -17,11 +17,8 @@ cli({
   ],
   columns: ['#', 'category', 'name', 'size', 'uploaded', 'seeders', 'leechers'],
   func: async (kwargs, page) => {
-    const durationMap = {
-      '24h': '1', '7d': '7', '30d': '30', '3m': '90', '6m': '180', '1y': '365', 'all': '0',
-    };
-    const d = durationMap[kwargs.duration] || '7';
-    const url = `https://uindex.org/top.php?c=${kwargs.category}&d=${d}`;
+    const d = kwargs.duration || '7d';
+    const url = `https://uindex.org/top.php?c=${kwargs.category}&t=${d}`;
     const resp = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
