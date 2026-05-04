@@ -16,7 +16,7 @@ cli({
     { name: 'sort', default: '', help: 'Sort by: seeders, size, name, uploaded (use -prefix for asc)' },
   ],
   columns: ['#', 'category', 'name', 'size', 'uploaded', 'seeders', 'leechers'],
-  func: async (page, kwargs) => {
+  func: async (kwargs, page) => {
     const durationMap = {
       '24h': '1', '7d': '7', '30d': '30', '3m': '90', '6m': '180', '1y': '365', 'all': '0',
     };

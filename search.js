@@ -17,7 +17,7 @@ cli({
     { name: 'sort', default: '', help: 'Sort by: seeders, size, name, uploaded (use -prefix for ascending, e.g. -name)' },
   ],
   columns: ['#', 'category', 'name', 'size', 'uploaded', 'seeders', 'leechers'],
-  func: async (page, kwargs) => {
+  func: async (kwargs, page) => {
     const url = `https://uindex.org/search.php?c=${kwargs.category}&search=${encodeURIComponent(kwargs.query)}&page=${kwargs.page}`;
     const resp = await fetch(url, {
       headers: {
@@ -52,8 +52,7 @@ cli({
       if (qualityAliases[pattern.toLowerCase()]) pattern = qualityAliases[pattern.toLowerCase()];
       const re = new RegExp(pattern, 'i');
       const filtered = items.filter(i => re.test(i.name));
-      // If quality filter removed everything, show a message by keeping items with note
-      if (filtered.length === 0) return [{ rank: '-', category: '-', name: `⚠️ No results matching "${kwargs.quality}" — try a broader keyword`, size: '-', uploaded: '-', seeders: '-', leechers: '-' }];
+      if (filtered.length === 0) return [{ rank: '-', category: '-', name: `No results matching "${kwargs.quality}"`, size: '-', uploaded: '-', seeders: '-', leechers: '-' }];
       items.length = 0; items.push(...filtered);
     }
 
@@ -64,7 +63,7 @@ cli({
         const s = parseInt(i.seedersRaw.replace(/,/g, ''));
         return !isNaN(s) && s >= minS;
       });
-      if (filtered.length === 0) return [{ rank: '-', category: '-', name: `⚠️ No results with >= ${minS} seeders — try lowering --min-seeders`, size: '-', uploaded: '-', seeders: '-', leechers: '-' }];
+      if (filtered.length === 0) return [{ rank: '-', category: '-', name: `No results with >= ${minS} seeders`, size: '-', uploaded: '-', seeders: '-', leechers: '-' }];
       items.length = 0; items.push(...filtered);
     }
 

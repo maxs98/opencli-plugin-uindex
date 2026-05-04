@@ -15,7 +15,7 @@ cli({
     { name: 'sort', default: '', help: 'Sort by: seeders, size, name (use -prefix for asc)' },
   ],
   columns: ['#', 'name', 'size', 'seeders', 'leechers'],
-  func: async (page, kwargs) => {
+  func: async (kwargs, page) => {
     const resp = await fetch('https://uindex.org/', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
